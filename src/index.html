@@ -9,14 +9,61 @@
 </head>
 
 <body>
-  <div class="subscribe">
-    <form method="POST" class="subscribe-form" action="http://localhost:7070/">
-      <input type="text" class="name" name="name" required>
-      <input type="text" class="phone" name="phone" required>
-      <button class="btn">Записаться</button>
-      <button class="delete">Удалить</button>
-    </form>
+  <div class="container">
+    <div class="header">
+      <button class="button add-button">
+        Добавить тикет
+      </button>
+    </div>
+    <div class="tickets">
+      <div class="ticket">
+        <div class="ticket__main">
+        <input class="ticket__status" type="checkbox" name="status">
+        <div class="ticket__name">Поменять краску в принтере</div>
+        <div class="ticket__created">10.03.19 08:40</div>
+        <div class="ticket__edit-button"></div>
+        <div class="ticket__delete-button"></div>
+        </div>
+        <div class="ticket__details hidden">
+        </div>
+      </div>
+      <div class="ticket">
+        <div class="ticket__main">
+          <input class="ticket__status" type="checkbox" name="status" checked>
+          <div class="ticket__name">Установить обновление</div>
+          <div class="ticket__created">15.03.19 08:40</div>
+          <div class="ticket__edit-button"></div>
+          <div class="ticket__delete-button"></div>
+        </div>
+        <div class="ticket__details hidden">
+          Вышло Критическое обновление, нужно устновить его и т.д. и т.п.
+        </div>
+      </div>
+    </div>
   </div>
+  <!-- <div class="modal-container hidden">
+    <div class="modal">
+      <div class="modal__header">
+        Добавить тикет
+      </div>
+      <div class="modal__form">
+        <form action="http://localhost:7070">
+          <div class="modal__block">
+            <label for="name">Краткое описание</label>
+            <input type="text" name="name" id="name">
+          </div>
+          <div class="modal__block">
+            <label for="description">Подробное описание</label>
+            <input type="text" name="description" id="description">
+          </div>
+          <div class="modal__buttons">
+            <button class="button modal__cancel-button">Отмена</button>
+            <button class="button modal__ok-button">Ok</input>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div> -->
 </body>
 
 </html>
