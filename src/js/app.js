@@ -1,57 +1,186 @@
 import "../css/style.css";
 import Modal from "./modal";
+import TicketList from "./ticketList";
 
 document.addEventListener("DOMContentLoaded", () => {
   const addTicketButton = document.querySelector(".add-button");
 
-  const ticketsContainer = document.querySelector(".tickets");
+  const ticketList = new TicketList(document.querySelector(".tickets"));
 
-  addTicketButton.addEventListener("click", () => {
-    new Modal("add");
+  updateTickets();
+
+  addTicketButton.addEventListener("click", addModal);
+
+  ticketList.element.addEventListener("click", (e) => {
+    e.preventDefault();
+    if (e.target.closest(".ticket__delete-button")) {
+      const id = e.target.closest(".ticket").getAttribute("ticketId");
+      deleteTicket(id);
+      return;
+    }
+
+    if (e.target.closest(".ticket__edit-button")) {
+      const id = e.target.closest(".ticket").getAttribute("ticketId");
+      editModal(id);
+      return;
+    }
+    if (e.target.closest(".ticket__name")) {
+      const descriptionElement = e.target
+        .closest(".ticket")
+        .querySelector(".ticket__details");
+      if (descriptionElement.classList.contains("hidden")) {
+        const id = e.target.closest(".ticket").getAttribute("ticketId");
+        const xhr = new XMLHttpRequest();
+
+        xhr.addEventListener("load", () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              const { description } = JSON.parse(xhr.responseText);
+
+              descriptionElement.innerText = description;
+            } catch (e) {
+              console.error(e);
+            }
+          }
+        });
+
+        xhr.open("GET", `http://localhost:7070/?method=ticketById&id=${id}`);
+
+        xhr.send();
+        descriptionElement.classList.remove("hidden");
+      } else {
+        descriptionElement.classList.add("hidden");
+      }
+      return;
+    }
+    if (e.target.closest(".ticket__status")) {
+      const checkbox = e.target.closest(".ticket__status");
+      // checkbox.checked = !checkbox.checked;
+      const id = e.target.closest(".ticket").getAttribute("ticketId");
+      const formData = new FormData();
+      formData.append("id", id);
+      formData.append("status", !(checkbox.classList.contains("ticket__status_checked")));
+
+      const xhr = new XMLHttpRequest();
+
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState !== 4) return;
+        updateTickets();
+      };
+
+      xhr.open("PUT", "http://localhost:7070/" + "?method=updateTicket");
+
+      xhr.send(formData);
+      return false;
+    }
   });
 
-  // subscribeForm.addEventListener("submit", (e) => {
-  //   e.preventDefault();
+  function updateTickets() {
+    const xhr = new XMLHttpRequest();
+    xhr.addEventListener("load", () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const tickets = JSON.parse(xhr.responseText);
+          ticketList.updateTickets(tickets);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    });
+    xhr.open("GET", "http://localhost:7070/?method=allTickets");
+    xhr.send();
+  }
 
-  //   const body = new FormData(subscribeForm);
-  //   // Array.from(subscribeForm.elements)
-  //   //   .filter(({ name }) => name)
-  //   //   .map(({ name, value }) => `${name}=${encodeURIComponent(value)}`)
-  //   //   .join("&");
+  function deleteTicket(id) {
+    const xhr = new XMLHttpRequest();
 
-  //   const xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = () => {
+      if (xhr.readyState !== 4) return;
+      updateTickets();
+    };
 
-  //   xhr.onreadystatechange = function () {
-  //     if (xhr.readyState !== 4) return;
+    xhr.open("DELETE", `http://localhost:7070/?method=deleteTicket&id=${id}`);
 
-  //     console.log(xhr.responseText);
-  //   };
+    xhr.send();
+  }
 
-  //   xhr.open("POST", subscribeForm.getAttribute("action"));
+  function addModal() {
+    const modal = new Modal("add").element;
+    document.body.appendChild(modal);
 
-  //   xhr.send(body);
-  // });
+    const cancel = modal.querySelector(".modal__cancel-button");
+    const form = modal.querySelector("form");
 
-  // unsubs.addEventListener("click", (e) => {
-  //   e.preventDefault();
+    cancel.addEventListener("click", (e) => {
+      e.preventDefault();
+      modal.remove();
+    });
 
-  //   const body = Array.from(subscribeForm.elements)
-  //     .filter(({ name }) => name)
-  //     .map(({ name, value }) => `${name}=${encodeURIComponent(value)}`)
-  //     .join("&");
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      
+      const xhr = new XMLHttpRequest();
 
-  //   const xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState !== 4) return;
+        modal.remove();
+        updateTickets();
+      };
 
-  //   xhr.onreadystatechange = function () {
-  //     if (xhr.readyState !== 4) return;
+      xhr.open("POST", form.getAttribute("action") + "?method=createTicket");
 
-  //     console.log(xhr.responseText);
-  //   };
+      xhr.send(formData);
+    });
+  }
 
-  //   xhr.open("DELETE", subscribeForm.getAttribute("action") + "?" + body);
+  function editModal(id) {
+    const modal = new Modal("edit").element;
+    document.body.appendChild(modal);
 
-  //   xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    const cancel = modal.querySelector(".modal__cancel-button");
+    const form = modal.querySelector("form");
 
-  //   xhr.send();
-  // });
+    const xhr = new XMLHttpRequest();
+
+    xhr.onreadystatechange = () => {
+      if (xhr.readyState !== 4) return;
+      try {
+        const data = JSON.parse(xhr.responseText);
+        modal.querySelector(`[name="name"]`).value = data.name;
+        modal.querySelector(`[name="description"]`).value = data.description;
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    xhr.open(
+      "GET",
+      form.getAttribute("action") + `?method=ticketById&id=${id}`
+    );
+    xhr.send();
+
+    cancel.addEventListener("click", (e) => {
+      e.preventDefault();
+      modal.remove();
+    });
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      formData.append("id", id);
+
+      const xhr = new XMLHttpRequest();
+
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState !== 4) return;
+        modal.remove();
+        updateTickets();
+      };
+
+      xhr.open("PUT", form.getAttribute("action") + "?method=updateTicket");
+
+      xhr.send(formData);
+    });
+  }
 });

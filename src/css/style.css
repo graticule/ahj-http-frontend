@@ -119,7 +119,7 @@ body {
     background-position: center;
 }
 
-.ticket__status:checked::after {
+.ticket__status_checked::after {
     position:absolute;
     top: 0;
     bottom: 0;

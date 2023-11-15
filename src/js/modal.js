@@ -1,10 +1,7 @@
 export default class Modal {
-  constructor(type, id = null) {
+  constructor(type) {
     this.type = type;
-    this.id = id;
-    this.closeModal = this.closeModal.bind(this);
     this.createModal();
-    document.body.appendChild(this.modal);
   }
 
   createModal() {
@@ -40,42 +37,9 @@ export default class Modal {
         </form>
       </div>
     </div>`;
-    this.cancel = this.modal.querySelector(".modal__cancel-button");
-    this.form = this.modal.querySelector("form");
-
-    this.cancel.addEventListener("click", (e) => {
-      e.preventDefault();
-      this.closeModal();
-    });
-
-    this.form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const formData = new FormData(this.form);
-      formData.append("id", this.id);
-
-      const xhr = new XMLHttpRequest();
-
-      xhr.onreadystatechange = () => {
-        if (xhr.readyState !== 4) return;
-        this.closeModal();
-      };
-
-      switch (this.type) {
-        case "add":
-          xhr.open("POST", this.form.getAttribute("action") + "?method=createTicket");
-          break;
-        case "edit":
-          formData.append("method", "updateTicket");
-
-          xhr.open("PUT", this.form.getAttribute("action") + "?method=updateTicket");
-          break;
-      }
-
-      xhr.send(formData);
-    });
   }
 
-  closeModal() {
-    this.modal.remove();
+  get element() {
+    return this.modal;
   }
 }
