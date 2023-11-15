@@ -8,14 +8,12 @@ export default class TicketList {
   updateTickets(tickets) {
     this.container.innerHTML = "";
     console.log(tickets);
-    tickets.forEach(({ id, name, status, created }) => {
-      console.log(typeof status, status);
-      const ticket = new Ticket(id, name, status, created);
-      this.container.appendChild(ticket.ticketElement);
+    tickets.forEach((ticket) => {
+      new Ticket(this, ticket);
     });
   }
 
-  get element() {
+  getElement() {
     return this.container;
   }
 }

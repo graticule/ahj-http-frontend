@@ -54,7 +54,8 @@ body {
 
 .button {
     appearance: none;
-    padding: 10px;
+    padding: 10px 20px;
+    margin-left: 10px;
 
     border: 1px solid #333333;
     border-radius: 16px;
@@ -77,15 +78,10 @@ body {
 
 .ticket {
     display: flex;
-    flex-direction: column;
     padding: 8px;
 
     background-color: #ffffff;
     border: 1px solid #333333;
-}
-
-.ticket__main {
-    display: flex;
 }
 
 .ticket__status {
@@ -96,14 +92,29 @@ body {
     appearance: none;
 }
 
+.ticket__info {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
 .ticket__name {
     padding: 4px;
-    flex-grow: 1;
-    
 }
+
+.ticket__description {
+    padding: 16px 4px;
+}
+
 .ticket__created {
+    flex-grow: 0;
+    flex-shrink: 0;
     padding: 4px;
     margin-right: 20px;
+}
+
+.ticket__status {
+    flex-grow: 0;
+    flex-shrink: 0;
 }
 
 .ticket__status::after {
@@ -130,8 +141,16 @@ body {
     background-repeat: no-repeat;
     background-position: center;
 }
+.modal__buttons {
+    display: flex;
+    width: 100%;
+    justify-content: right;
+}
 
 .ticket__edit-button {
+    flex-grow: 0;
+    flex-shrink: 0;
+
     width: 32px;
     height: 32px;
 
@@ -141,10 +160,25 @@ body {
 }
 
 .ticket__delete-button {
+    flex-grow: 0;
+    flex-shrink: 0;
     width: 32px;
     height: 32px;
 
     background: url("../images//checkbox-blank-circle-svgrepo-com.svg") center / cover no-repeat, url("../images//close-x-svgrepo-com.svg") center / 18px 18px no-repeat;
 
     cursor: pointer;
+}
+
+
+.input_name {
+    padding: 8px;
+    font-size: 1em;
+
+}
+.input_description {
+    padding: 8px;
+    height: 100px;
+    resize: vertical;
+    font-size: 1em;
 }

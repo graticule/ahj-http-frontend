@@ -11,11 +11,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   addTicketButton.addEventListener("click", addModal);
 
-  ticketList.element.addEventListener("click", (e) => {
+  ticketList.getElement().addEventListener("click", (e) => {
     e.preventDefault();
     if (e.target.closest(".ticket__delete-button")) {
       const id = e.target.closest(".ticket").getAttribute("ticketId");
-      deleteTicket(id);
+      deleteModal(id);
       return;
     }
 
@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.target.closest(".ticket__name")) {
       const descriptionElement = e.target
         .closest(".ticket")
-        .querySelector(".ticket__details");
+        .querySelector(".ticket__description");
       if (descriptionElement.classList.contains("hidden")) {
         const id = e.target.closest(".ticket").getAttribute("ticketId");
         const xhr = new XMLHttpRequest();
@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
             try {
               const { description } = JSON.parse(xhr.responseText);
 
-              descriptionElement.innerText = description;
+              descriptionElement.innerHTML = description;
             } catch (e) {
               console.error(e);
             }
@@ -59,7 +59,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const id = e.target.closest(".ticket").getAttribute("ticketId");
       const formData = new FormData();
       formData.append("id", id);
-      formData.append("status", !(checkbox.classList.contains("ticket__status_checked")));
+      formData.append(
+        "status",
+        !checkbox.classList.contains("ticket__status_checked")
+      );
 
       const xhr = new XMLHttpRequest();
 
@@ -91,21 +94,8 @@ document.addEventListener("DOMContentLoaded", () => {
     xhr.send();
   }
 
-  function deleteTicket(id) {
-    const xhr = new XMLHttpRequest();
-
-    xhr.onreadystatechange = () => {
-      if (xhr.readyState !== 4) return;
-      updateTickets();
-    };
-
-    xhr.open("DELETE", `http://localhost:7070/?method=deleteTicket&id=${id}`);
-
-    xhr.send();
-  }
-
   function addModal() {
-    const modal = new Modal("add").element;
+    const modal = new Modal("add").getElement();
     document.body.appendChild(modal);
 
     const cancel = modal.querySelector(".modal__cancel-button");
@@ -119,7 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
     form.addEventListener("submit", (e) => {
       e.preventDefault();
       const formData = new FormData(form);
-      
+
       const xhr = new XMLHttpRequest();
 
       xhr.onreadystatechange = () => {
@@ -135,7 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function editModal(id) {
-    const modal = new Modal("edit").element;
+    const modal = new Modal("edit").getElement();
     document.body.appendChild(modal);
 
     const cancel = modal.querySelector(".modal__cancel-button");
@@ -181,6 +171,34 @@ document.addEventListener("DOMContentLoaded", () => {
       xhr.open("PUT", form.getAttribute("action") + "?method=updateTicket");
 
       xhr.send(formData);
+    });
+  }
+
+  function deleteModal(id) {
+    const modal = new Modal("delete").getElement();
+    document.body.appendChild(modal);
+
+    const cancel = modal.querySelector(".modal__cancel-button");
+    const form = modal.querySelector("form");
+
+    cancel.addEventListener("click", (e) => {
+      e.preventDefault();
+      modal.remove();
+    });
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const xhr = new XMLHttpRequest();
+
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState !== 4) return;
+        updateTickets();
+        modal.remove();
+      };
+
+      xhr.open("DELETE", `http://localhost:7070/?method=deleteTicket&id=${id}`);
+
+      xhr.send();
     });
   }
 });
